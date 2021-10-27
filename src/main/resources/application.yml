@@ -1,0 +1,20 @@
+server:
+  port: 8766
+
+spring:
+  application:
+    name: openfeign-okhttp
+
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+      order-serve:
+        connectTimeout: 5000
+        readTimeout: 11000
