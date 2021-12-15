@@ -21,3 +21,5 @@ feign:
 
 qatrace:
   url: http://api.ygyg.dev1/qatrace
+default:
+  url: http://localhost:8080

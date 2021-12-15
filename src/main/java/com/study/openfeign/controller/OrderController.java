@@ -1,13 +1,19 @@
 package com.study.openfeign.controller;
 
+import com.study.openfeign.client.CloudAnalyseClient;
 import com.study.openfeign.client.OrderClient;
 import com.study.openfeign.client.TraceClient;
+import com.study.openfeign.param.ApplyNotifyParam;
 import com.study.openfeign.param.GoodsSearchParam;
+import com.study.openfeign.param.TokenParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +21,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -35,6 +42,9 @@ public class OrderController {
 
     @Resource
     private RestTemplate restTemplate;
+
+    @Autowired
+    private CloudAnalyseClient analyseClient;
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -70,6 +80,35 @@ public class OrderController {
         param.setPageSize(20);
         param.setPageNum(1);
         String result = traceClient.packGoodsSearch(param, token);
+        return result;
+    }
+
+    @GetMapping("/apply/callback")
+    public String codeApplyCallback() {
+        String serialNo = "123";
+        String sourceCode = "3F3180EC04FD4153AB465F00C82AC701";
+        MultiValueMap<String, String> tokenMap = new LinkedMultiValueMap<>();
+        long timestamp1 = System.currentTimeMillis();
+        String reqStr = "serialNo=123&sourceCode=3F3180EC04FD4153AB465F00C82AC701&version=1.0&salt=qw&timestamp="+ timestamp1;
+        String md5Str = DigestUtils.md5DigestAsHex(reqStr.getBytes(StandardCharsets.UTF_8));
+        tokenMap.add("signature", md5Str);
+        tokenMap.add("timestamp", timestamp1 + "");
+        String result = analyseClient.tokenApply(sourceCode, serialNo, tokenMap);
+
+
+//        ApplyNotifyParam notifyParam = new ApplyNotifyParam();
+//        notifyParam.setApplyId(123L);
+//        notifyParam.setFileUrl("");
+//        notifyParam.setSerialNo("123");
+//        notifyParam.setSourceCode("3F3180EC04FD4153AB465F00C82AC701");
+//        notifyParam.setTicket("");
+//        MultiValueMap<String, String> notifyMap = new LinkedMultiValueMap<>();
+//        long timestamp2 = System.currentTimeMillis();
+//        String reqStr2 = "serialNo=123&salt=qw&ticket=123a&timestamp=1584713993";
+//        notifyMap.add("signature", "");
+//        notifyMap.add("timestamp", timestamp2 + "");
+//        String notifyRes = analyseClient.applyNotify(notifyParam, tokenMap);
+
         return result;
     }
 
