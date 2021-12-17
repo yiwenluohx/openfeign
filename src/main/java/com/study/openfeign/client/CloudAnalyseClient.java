@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * <author>          <time>          <version>          <desc>
  * luohx            修改时间           1.0           象云析回调接口测试
  */
-@FeignClient(name = "cloud-analyse-serve", url = "${default.url}")
+@FeignClient(name = "cloud-analyse-serve", url = "${qatrace.url}")
 public interface CloudAnalyseClient {
 
     @PostMapping(value = "/integration/tickettoken/get")
