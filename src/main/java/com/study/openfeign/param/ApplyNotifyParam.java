@@ -13,7 +13,7 @@ public class ApplyNotifyParam {
 
     private String sourceCode;
     private String serialNo;
-    private Long applyId;
+    private String applyId;
     private String fileUrl;
     private String ticket;
 
@@ -94,7 +94,7 @@ public class ApplyNotifyParam {
      *
      * @return the value of applyId
      */
-    public Long getApplyId() {
+    public String getApplyId() {
         return applyId;
     }
 
@@ -103,7 +103,7 @@ public class ApplyNotifyParam {
      * <p>You can use getApplyId() to get the value of applyId</p>
      * * @param applyId applyId
      */
-    public void setApplyId(Long applyId) {
+    public void setApplyId(String applyId) {
         this.applyId = applyId;
     }
 }

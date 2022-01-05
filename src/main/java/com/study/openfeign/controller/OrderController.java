@@ -7,6 +7,7 @@ import com.study.openfeign.client.TraceClient;
 import com.study.openfeign.dto.BaseResult;
 import com.study.openfeign.dto.TokenApplyResult;
 import com.study.openfeign.param.ApplyNotifyParam;
+import com.study.openfeign.param.EntregisterNotifyParam;
 import com.study.openfeign.param.GoodsSearchParam;
 import com.study.openfeign.param.TokenParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,13 +137,14 @@ public class OrderController {
             TokenApplyResult applyResult = JSON.parseObject(baseResult.getData().toString(), TokenApplyResult.class);
 
             ApplyNotifyParam notifyParam = new ApplyNotifyParam();
-            notifyParam.setApplyId(66419151308062864L);
-            notifyParam.setFileUrl("https://lfrz1.stor.enncloud.cn/ennew-dev/public/qT8I30Ep8LClHsA9/industria-security-platform/20211216-10036-00011_16396620131639662013123.xls");
+            notifyParam.setApplyId("20211217-10049-00006");
+            notifyParam.setFileUrl("https://lfrz1.stor.enncloud.cn/ennew-dev/public/qT8I30Ep8LClHsA9/industria-security-platform/20211217-10049-00006_16397318751639731875271.xls");
             notifyParam.setSerialNo("123");
             notifyParam.setSourceCode("3F3180EC04FD4153AB465F00C82AC701");
             notifyParam.setTicket(applyResult.getTicket());
             //发起post远程调用请求
             String applyUrl = "http://api.ygyg.dev1/qatrace/integration/codeapply/notify";
+//            applyUrl = "http://localhost:8080/integration/codeapply/notify";
             long timestamp2 = System.currentTimeMillis();
             String reqStr2 = "serialNo=123&salt=qw&ticket=" + applyResult.getTicket() + "&timestamp=" + timestamp2;
             HttpHeaders header = getHeader("");
@@ -150,11 +152,54 @@ public class OrderController {
             header.set("signature", md5Str1);
             header.set("timestamp", timestamp2 + "");
             resStr = restTemplate.postForEntity(applyUrl, new HttpEntity<>(JSON.toJSON(notifyParam), header), String.class).getBody();
-
-
         }
 
         return resStr;
+    }
+
+    @GetMapping("/apply/callback2")
+    public String codeApplyCallback2() throws Exception {
+        String resStr = "";
+
+        String url = "http://api.ygyg.dev1/qatrace/integration/tickettoken/get";
+        url = "http://localhost:8080/integration/tickettoken/get";
+        String serialNo = "123";
+        String sourceCode = "3F3180EC04FD4153AB465F00C82AC701";
+        long timestamp1 = System.currentTimeMillis();
+        String reqStr = "serialNo=123&sourceCode=3F3180EC04FD4153AB465F00C82AC701&version=1.0&salt=qw&timestamp=" + timestamp1;
+        String md5Str = DigestUtils.md5DigestAsHex(reqStr.getBytes(StandardCharsets.UTF_8));
+        HttpHeaders headers = getHeader("application/x-www-form-urlencoded");
+        headers.set("signature", md5Str);
+        headers.set("timestamp", timestamp1 + "");
+        //发起post远程调用请求
+        String tokenStr = restTemplate.postForEntity(url + "?sourceCode=" + sourceCode + "&serialNo=" + serialNo, new HttpEntity<>("", headers), String.class).getBody();
+        BaseResult baseResult = JSON.parseObject(tokenStr, BaseResult.class);
+        if (baseResult != null && baseResult.getSuccess()) {
+            TokenApplyResult applyResult = JSON.parseObject(baseResult.getData().toString(), TokenApplyResult.class);
+
+            EntregisterNotifyParam notifyParam = new EntregisterNotifyParam();
+
+            notifyParam.setEnterpriseId("1120");
+            notifyParam.setOpenId("1234");
+            notifyParam.setRuleId("2");
+            notifyParam.setRuleTemp("");
+            notifyParam.setSerialNo("123");
+            notifyParam.setSourceCode("3F3180EC04FD4153AB465F00C82AC701");
+            notifyParam.setTicket(applyResult.getTicket());
+            //发起post远程调用请求
+            String applyUrl = "http://api.ygyg.dev1/qatrace/integration/entregister/notify";
+            applyUrl = "http://localhost:8080/integration/entregister/notify";
+            long timestamp2 = System.currentTimeMillis();
+            String reqStr2 = "serialNo=123&salt=qw&ticket=" + applyResult.getTicket() + "&timestamp=" + timestamp2;
+            HttpHeaders header = getHeader("");
+            String md5Str1 = DigestUtils.md5DigestAsHex(reqStr2.getBytes(StandardCharsets.UTF_8));
+            header.set("signature", md5Str1);
+            header.set("timestamp", timestamp2 + "");
+            resStr = restTemplate.postForEntity(applyUrl, new HttpEntity<>(JSON.toJSON(notifyParam), header), String.class).getBody();
+        }
+
+        return resStr;
+
     }
 
 

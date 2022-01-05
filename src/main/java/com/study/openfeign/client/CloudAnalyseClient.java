@@ -1,6 +1,7 @@
 package com.study.openfeign.client;
 
 import com.study.openfeign.param.ApplyNotifyParam;
+import com.study.openfeign.param.EntregisterNotifyParam;
 import com.study.openfeign.param.TokenParam;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.util.MultiValueMap;
@@ -23,4 +24,7 @@ public interface CloudAnalyseClient {
 
     @PostMapping(value = "/integration/codeapply/notify")
     String applyNotify(@RequestBody ApplyNotifyParam notifyParam, @RequestHeader MultiValueMap<String, String> headers);
+
+    @PostMapping(value = "/integration/entregister/notify")
+    String entregisterNotify(@RequestBody EntregisterNotifyParam notifyParam, @RequestHeader MultiValueMap<String, String> headers);
 }
