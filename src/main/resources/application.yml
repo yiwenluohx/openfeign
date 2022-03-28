@@ -20,6 +20,6 @@ feign:
         readTimeout: 11000
 
 qatrace:
-  url: http://api.ygyg.dev1/qatrace
+  url: https://api.eircloud.cn
 default:
   url: http://localhost:8080

@@ -54,7 +54,11 @@ public class OrderController {
 
     @GetMapping("/feignOkHttp")
     public String feignOkHttp() {
-        String result = orderClient.getOrderById("2");
+//        String result = orderClient.getOrderById("2");
+        MultiValueMap<String, String> tokenMap = new LinkedMultiValueMap<>();
+        tokenMap.add("grant_type", "openId");
+        tokenMap.add("openId", "cdb9ac63efac90680e0954df203ece4ed24cd5ec");
+        String result = analyseClient.getToken(tokenMap, "d2ViQXBwOndlYkFwcA==");
         return result;
     }
 

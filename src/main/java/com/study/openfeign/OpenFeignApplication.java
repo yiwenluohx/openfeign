@@ -9,8 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @Author: luohx
@@ -32,8 +37,28 @@ public class OpenFeignApplication {
     private RestTemplateBuilder builder;
 
     public static void main(String[] args) {
+        String fileName = "RK220317A.3RLB-ZH-C.10-1.5米.CSV";
+        fileName = "RK220317-灶具管3RLB-ZH-C-10-1500.CSV";
+        String[] names = fileName.split("\\.");
+        String prefixN = names[0], postfixN = ".cvs";
+        if (names.length > 1) {
+            postfixN = ".".concat(names[names.length - 1]);
+            prefixN = fileName.substring(0, fileName.length() - postfixN.length());
+        }
 
+        fileName = "安全阀‘；。.;.0000.CSV";
+        try {
+            String downloadFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name()).replaceAll("\\+", "%20");
+            String downloadFileName1 = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
+            int i = 0;
+        } catch (Exception ex) {
+
+        }
+
+        String str = ";;;;;.CSV";
+        System.out.println(str);
+        System.out.println(StringFilter(str));
 //        for (int i = 0; i < 5; i++) {
 //            outer:
 //            for (int j = 0; j < 3; j++) {
@@ -59,7 +84,7 @@ public class OpenFeignApplication {
         }};
 
         list.forEach(k -> {
-            list1.stream().anyMatch(j->{
+            list1.stream().anyMatch(j -> {
                 System.out.println(k + "==" + j);
                 return j == 3;
             });
@@ -78,5 +103,14 @@ public class OpenFeignApplication {
     @Bean
     public RestTemplate restTemplate() {
         return builder.build();
+    }
+
+    public static String StringFilter(String str) throws PatternSyntaxException {
+        // 只允许字母和数字 // String regEx ="[^a-zA-Z0-9]";
+        // 清除掉所有特殊字符
+        String regEx = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(str);
+        return m.replaceAll(".").trim();
     }
 }
