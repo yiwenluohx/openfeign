@@ -93,14 +93,16 @@ public class OrderController {
 
     @GetMapping("/apply/callback")
     public String codeApplyCallback() {
-        String serialNo = "123";
+        String serialNo = "1653651859361289";
         String sourceCode = "3F3180EC04FD4153AB465F00C82AC701";
         MultiValueMap<String, String> tokenMap = new LinkedMultiValueMap<>();
         long timestamp1 = System.currentTimeMillis();
         String reqStr = "serialNo=123&sourceCode=3F3180EC04FD4153AB465F00C82AC701&version=1.0&salt=qw&timestamp=" + timestamp1;
+        reqStr="serialNo=1653651859361289&sourceCode=3F3180EC04FD4153AB465F00C82AC701&version=1.0&salt=qw&timestamp=1653651859361";
         String md5Str = DigestUtils.md5DigestAsHex(reqStr.getBytes(StandardCharsets.UTF_8));
         tokenMap.add("signature", md5Str);
-        tokenMap.add("timestamp", timestamp1 + "");
+//        tokenMap.add("timestamp", timestamp1 + "");
+        tokenMap.add("timestamp", "1653651859361");
         String result = analyseClient.tokenApply(sourceCode, serialNo, tokenMap);
 
 

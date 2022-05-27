@@ -1,8 +1,11 @@
 package com.study.openfeign.config;
 
+import feign.Client;
 import feign.Feign;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +19,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
@@ -26,69 +33,30 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 public class FeignOkHttpConfig {
-    /**
-     * OkHttpInterceptor
-     *
-     * @return
-     */
-    @Bean
-    public OkHttpInterceptor okHttpInterceptor() {
-        return new OkHttpInterceptor();
-    }
+    private static final Logger log = LoggerFactory.getLogger(FeignOkHttpConfig.class);
 
     @Bean
-    public OkHttpClientDynamicTimeoutInterceptor dynamicTimeoutInterceptor() {
-        return new OkHttpClientDynamicTimeoutInterceptor();
-    }
+    public Client getClient() throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        final TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        log.info("checkClientTrusted execute");
+                    }
 
-    /**
-     * 注入okhttp
-     *
-     * @param okHttpClientFactory
-     * @param httpClientProperties
-     * @return
-     */
-    @Bean
-    @ConditionalOnProperty({"feign.okhttp.enabled"})
-    public okhttp3.OkHttpClient okHttpClient(OkHttpClientFactory okHttpClientFactory, FeignHttpClientProperties httpClientProperties) throws Exception {
-//        okhttp3.OkHttpClient.Builder builder = okHttpClientFactory.createBuilder(httpClientProperties.isDisableSslValidation())
-//                .connectTimeout(httpClientProperties.getConnectionTimeout(), TimeUnit.SECONDS)
-//                .followRedirects(httpClientProperties.isFollowRedirects())
-//                .connectionPool(new ConnectionPool(5, 10, TimeUnit.MINUTES))
-//                .addInterceptor(okHttpInterceptor())
-//                .addInterceptor(dynamicTimeoutInterceptor());
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        log.info("checkServerTrusted execute");
+                    }
 
-//        try {
-//            final TrustManager[] trustAllCerts = new TrustManager[]{
-//                    new X509TrustManager() {
-//                        @Override
-//                        public void checkClientTrusted(X509Certificate[] chain, String authType) {
-//                        }
-//
-//                        @Override
-//                        public void checkServerTrusted(X509Certificate[] chain, String authType) {
-//                        }
-//
-//                        @Override
-//                        public X509Certificate[] getAcceptedIssuers() {
-//                            return new X509Certificate[0];
-//                        }
-//                    }
-//            };
-//            final SSLContext sslContext = SSLContext.getInstance("SSL");
-//            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-//            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-//            X509TrustManager trustAllCert = (X509TrustManager) trustAllCerts[0];
-//            builder.sslSocketFactory(sslSocketFactory, trustAllCert);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//        return builder.build();
-        return okHttpClientFactory.createBuilder(httpClientProperties.isDisableSslValidation())
-                .connectTimeout(httpClientProperties.getConnectionTimeout(), TimeUnit.SECONDS)
-                .followRedirects(httpClientProperties.isFollowRedirects())
-                .connectionPool(new ConnectionPool(5, 10, TimeUnit.MINUTES))
-                .addInterceptor(okHttpInterceptor())
-                .addInterceptor(dynamicTimeoutInterceptor()).build();
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                }
+        };
+        sslContext.init(null, trustAllCerts, new SecureRandom());
+        return new Client.Default(sslContext.getSocketFactory(), null);
     }
 }
