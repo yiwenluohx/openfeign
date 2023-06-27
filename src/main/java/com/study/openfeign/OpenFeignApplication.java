@@ -47,8 +47,6 @@ public class OpenFeignApplication {
 
     public static void main(String[] args) {
 
-        Integer tempN = 12;
-
         List<String> list11 = new ArrayList<>();
         list11.add("ACCOUNT1");
         list11.add("ACCOUNT2");
